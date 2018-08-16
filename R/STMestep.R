@@ -41,6 +41,12 @@ estep <- function(documents, beta.index, update.mu, #null allows for intercept o
     ncores <- detectCores()
   }
 
+  if (verbose) {
+    msg <- sprintf("Using %d cores.\n", ncores)
+    cat(msg)
+  }
+
+
   process <- function(cpuID) {
       start <- ((cpuID - 1) * N) %/% ncores + 1
       end <- (cpuID * N) %/% ncores
