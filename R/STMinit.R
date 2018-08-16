@@ -15,7 +15,10 @@ stm.init <- function(documents, settings) {
   eta <- settings$init$eta 
   burnin <- settings$init$burnin 
   maxV <- settings$init$maxV
-    
+  verbose <- settings$verbose
+
+  t1 <- proc.time()
+
   #Different Modes
   if(mode=="LDA") {
     resetdocs <- lapply(documents, function(x) {
@@ -140,6 +143,11 @@ stm.init <- function(documents, settings) {
     if(sum(newbeta[[1]][1,])==1) stop("It looks like you provided an unlogged version of custom beta. See documentation")
     #okay at this point we probably have checked it enough- copy it over.
     model$beta <- lapply(newbeta, exp)
+  }
+
+  if (verbose) {
+    msg <- sprintf("Completed initialization (%d seconds). \n", floor((proc.time()-t1)[3]))
+    cat(msg)
   }
   
   return(model)
