@@ -57,6 +57,7 @@ stm.init <- function(documents, settings) {
     if(K >= V) stop("Spectral initialization cannot be used for the overcomplete case (K greater than or equal to number of words in vocab)")
     # (1) Prep the Gram matrix
     if(verbose) cat("\t Calculating the gram matrix...\n")
+    t2 <- proc.time()
     docs <- doc.to.ijv(documents)
     mat <- Matrix::sparseMatrix(docs$i,docs$j, x=docs$v)
     rm(docs)
@@ -92,20 +93,31 @@ stm.init <- function(documents, settings) {
       Q <- gram.rp(mat, s=settings$init$s, p=settings$init$p, 
                    d.group.size=settings$init$d.group.size, verbose=verbose)
     }
+    if (verbose) {
+      msg <- sprintf("\tCompleted gram matrix (%d seconds). \n", floor((proc.time()-t2)[3]))
+      cat(msg)
+    }
     
     
     # (2) anchor words
+    t2 <- proc.time()
     if(K!=0) {
-      if(verbose) cat("\t Finding anchor words...\n \t")
+      if(verbose) cat("\tFinding anchor words...\n \t")
       anchor <- fastAnchor(Q, K=K, verbose=verbose)
     } else {
-      if(verbose) cat("\t Finding anchor words...\n \t")
+      if(verbose) cat("\tFinding anchor words...\n \t")
       anchor <- tsneAnchor(Q, verbose=verbose, 
                            init.dims=settings$init$tSNE_init.dims,
                            perplexity=settings$init$tSNE_perplexity) #run the Lee and Mimno (2014) algorithm
       K <- length(anchor) # update K
     }
+    if (verbose) {
+      msg <- sprintf("\n\tFound anchor words (%d seconds). \n", floor((proc.time()-t2)[3]))
+      cat(msg)
+    }
+
     # (3) recoverL2
+    t2 <- proc.time()
     if(verbose) cat("\n\t Recovering initialization...\n \t")
     beta <- recoverL2(Q, anchor, wprob, verbose=verbose, recoverEG=settings$init$recoverEG)$A
     
@@ -119,12 +131,15 @@ stm.init <- function(documents, settings) {
       beta <- beta.new/rowSums(beta.new)  
       rm(beta.new)
     }
+    if (verbose) {
+      msg <- sprintf("\tRecovered initialization (%d seconds). \n", floor((proc.time()-t2)[3]))
+      cat(msg)
+    }
     
     # (4) generate other parameters
     mu <- matrix(0, nrow=(K-1),ncol=1)
     sigma <- diag(20, nrow=(K-1))
     lambda <- matrix(0, nrow=N, ncol=(K-1))
-    if(verbose) cat("Initialization complete.\n")
   }
   #turn beta into a list and assign it for each aspect
   beta <- rep(list(beta),A)

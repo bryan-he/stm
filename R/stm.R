@@ -318,6 +318,8 @@
 #' latent topics.  Setting it to \code{FALSE} reduces to a model with no
 #' interactive effects.
 #' @param ngroups Number of groups for memoized inference.  See details below.
+#' @param ncores Number of cores for multithreading E step.  Setting this to 0
+#' will use all available cores.  Defaults to 1.
 #' @param model A prefit model object.  By passing an \code{stm} object to this
 #' argument you can restart an existing model.  See details for more info.
 #' @param gamma.prior sets the prior estimation method for the prevalence
@@ -411,7 +413,7 @@ stm <- function(documents, vocab, K,
                 max.em.its=500, emtol=1e-5,
                 verbose=TRUE, reportevery=5,
                 LDAbeta=TRUE, interactions=TRUE,
-                ngroups=1, model=NULL,
+                ngroups=1, ncores=1, model=NULL,
                 gamma.prior=c("Pooled", "L1"), sigma.prior=0,
                 kappa.prior=c("L1", "Jeffreys"), control=list())  {
   
@@ -571,7 +573,8 @@ stm <- function(documents, vocab, K,
                              s=.05, p=3000, d.group.size=2000, recoverEG=TRUE,
                              tSNE_init.dims=50, tSNE_perplexity=30), 
                    seed=seed,
-                   ngroups=ngroups)
+                   ngroups=ngroups,
+                   ncores=ncores)
   if(init.type=="Spectral" & V > 10000) {
     settings$init$maxV <- 10000
   }
