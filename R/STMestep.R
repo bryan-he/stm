@@ -83,14 +83,17 @@ estep <- function(documents, beta.index, update.mu, #null allows for intercept o
         beta.ss[[aspect]][,words] <- doc.results$phis + beta.ss[[aspect]][,words]
         bound[i - start + 1] <- doc.results$bound
         lambda[[i - start + 1]] <- c(doc.results$eta$lambda)
-        if(verbose && i%%ctevery==0) cat(".")
+        if(verbose && i%%ctevery==0) {
+            cat(".")
+            flush.console()
+        }
       }
 
       return(list(sigma=sigma.ss, beta=beta.ss, bound=bound, lambda=lambda))
   }
   t1 <- proc.time()
 
-  batch <- mclapply(1:ncores, process, mc.cores=ncores)
+  batch <- mclapply(1:ncores, process, mc.cores=ncores, mc.preschedule=FALSE)
   if(verbose) cat("\n") #add a line break for the next message.
 
   sigma.ss <- diag(0, nrow=(K-1))
