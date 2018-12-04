@@ -168,8 +168,10 @@ stm.control <- function(documents, vocab, settings, model=NULL) {
     stopits <- convergence$stopits
 
     #Print Updates if we haven't yet converged
-    if(!stopits & verbose) report(convergence, ntokens=ntokens, beta, vocab,
-                                       settings$topicreportevery, verbose)
+    # if(!stopits & verbose) report(convergence, ntokens=ntokens, beta, vocab,
+    #                                    settings$topicreportevery, verbose)
+    report(convergence, ntokens=ntokens, beta, vocab,
+                settings$topicreportevery, verbose)
   }
   #######
   #Step 3: Construct Output
